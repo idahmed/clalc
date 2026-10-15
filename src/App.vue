@@ -528,7 +528,7 @@ const mainKeys = [
               />
             </svg>
           </button>
-          <h1 v-if="page === 'calc'">Scientific calculator</h1>
+          <h1 v-if="page === 'calc'">Free Scientific Calculator</h1>
           <h1 v-else-if="page === 'docs'">How to Use</h1>
           <h1 v-else-if="page === 'terms'">Terms of Service</h1>
           <h1 v-else-if="page === 'privacy'">Privacy Policy</h1>
