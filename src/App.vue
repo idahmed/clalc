@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import HubLinks from '@/components/HubLinks.vue'
 import { evaluate } from '@/lib/evaluate'
 import { loadHistory, saveHistory } from '@/lib/history'
 import {
@@ -522,7 +523,7 @@ const mainKeys = [
             </svg>
           </button>
           <h1>Scientific calculator</h1>
-          <p>by sessea</p>
+          <HubLinks />
         </header>
 
         <nav v-if="useTabs" class="tabs" aria-label="Views">
