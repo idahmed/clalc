@@ -870,3 +870,149 @@ button {
     background: transparent;
   }
 }
+
+.content-page {
+  width: min(100%, 42rem);
+  margin-inline: auto;
+  padding: 0 0.5rem;
+  animation: rise 0.55s ease both;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+.doc-section {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--panel);
+}
+
+.doc-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.doc-section p {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.doc-section p:last-child {
+  margin-bottom: 0;
+}
+
+.doc-section ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.doc-section li {
+  margin-bottom: 0.25rem;
+}
+
+.doc-section strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.doc-section a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.doc-section a:hover {
+  text-decoration: none;
+}
+
+.footer {
+  margin-top: 2rem;
+  padding: 1.5rem 0;
+  text-align: center;
+  animation: rise 0.55s ease 0.08s both;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.footer-links button {
+  padding: 0.25rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.footer-links button:hover {
+  color: var(--ink);
+}
+
+.copyright {
+  margin: 0;
+  color: var(--soft);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .content-page {
+    padding: 0;
+  }
+
+  .doc-section {
+    padding: 1rem;
+    border-radius: 0.85rem;
+  }
+
+  .doc-section h2 {
+    font-size: 0.95rem;
+  }
+
+  .doc-section p,
+  .doc-section ul {
+    font-size: 0.85rem;
+  }
+
+  .footer {
+    margin-top: 1.5rem;
+    padding: 1rem 0;
+  }
+
+  .footer-links {
+    gap: 0.75rem;
+  }
+
+  .footer-links button {
+    font-size: 0.75rem;
+  }
+}
