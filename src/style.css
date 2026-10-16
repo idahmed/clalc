@@ -32,16 +32,12 @@
   --line: #e6e6e6;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
   --bg: #f3f3f3;
-  --ad-bg: #fafafa;
-  --ad-line: #dddddd;
   --tab-bg: #ffffff;
   --on-ink: #ffffff;
   --accent: #1c1c1c;
   --font-brand: 'Syne', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
-  --ad-rail: 160px;
-  --ad-banner-h: 90px;
-  --ad-gap: 0.75rem;
+  --shell-gap: 0.75rem;
   --theme-color: #1c1c1c;
 }
 
@@ -78,8 +74,6 @@
   --line: #2e2e2e;
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
   --bg: #141414;
-  --ad-bg: #1a1a1a;
-  --ad-line: #333333;
   --tab-bg: #1e1e1e;
   --on-ink: #1c1c1c;
   --accent: #f0f0f0;
@@ -109,8 +103,8 @@ button {
 
 .shell {
   display: grid;
-  grid-template-columns: var(--ad-rail) minmax(0, 1fr) var(--ad-rail);
-  gap: var(--ad-gap);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--shell-gap);
   width: 100%;
   min-height: 100svh;
   min-height: 100dvh;
@@ -121,46 +115,12 @@ button {
 .app {
   display: flex;
   flex-direction: column;
-  gap: var(--ad-gap);
+  gap: var(--shell-gap);
   min-width: 0;
 }
 
-.ad {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.ad-rail {
-  position: sticky;
-  top: 0.75rem;
-  align-self: start;
-  height: calc(100dvh - 1.5rem);
-}
 
-.ad-slot {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  border: 1px dashed var(--ad-line);
-  border-radius: 0.65rem;
-  background: var(--ad-bg);
-  color: var(--soft);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.ad-slot-rail {
-  width: var(--ad-rail);
-  height: min(600px, calc(100dvh - 1.5rem));
-}
-
-.ad-slot-banner {
-  width: min(100%, 728px);
-  height: var(--ad-banner-h);
-}
 
 .page {
   flex: 1;
@@ -686,8 +646,7 @@ button {
 
 @media (max-width: 1200px) {
   :root {
-    --ad-banner-h: 50px;
-    --ad-gap: 0.55rem;
+    --shell-gap: 0.55rem;
   }
 
   .shell {
@@ -696,15 +655,6 @@ button {
     padding-bottom: max(0.45rem, env(safe-area-inset-bottom));
   }
 
-  .ad-rail {
-    display: none;
-  }
-
-  .ad-slot-banner {
-    width: 100%;
-    max-width: 100%;
-    height: var(--ad-banner-h);
-  }
 
   .page {
     place-content: start stretch;
@@ -784,7 +734,6 @@ button {
 
 @media (max-width: 420px) {
   :root {
-    --ad-banner-h: 50px;
   }
 
   .keys {
