@@ -1,6 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import HubLinks from '@/components/HubLinks.vue'
+import InfoContent from '@/components/InfoContent.vue'
+import InfoModal from '@/components/InfoModal.vue'
+import SeoBlurb from '@/components/SeoBlurb.vue'
 import { evaluate } from '@/lib/evaluate'
 import { loadHistory, saveHistory } from '@/lib/history'
 import {
@@ -24,7 +27,25 @@ const history = ref(loadHistory())
 const tab = ref('calc')
 const useTabs = ref(window.matchMedia('(max-width: 1200px)').matches)
 const copied = ref(false)
-const page = ref('calc')
+const info = ref(null)
+
+const infoTitles = {
+  docs: 'How to Use',
+  terms: 'Terms of Service',
+  privacy: 'Privacy Policy',
+}
+
+const seoPoints = [
+  'Free scientific calculator with sin, cos, tan, log, roots, and memory.',
+  'History and preferences stay in your browser — nothing is uploaded.',
+  'Works offline as a PWA after you install it.',
+]
+
+const seoFaq = [
+  { q: 'Is this scientific calculator free?', a: 'Yes. Free to use with no account required.' },
+  { q: 'Does it work offline?', a: 'Yes. After the first visit or install, it can work offline as a PWA.' },
+  { q: 'Are my calculations private?', a: 'Yes. History and memory stay in localStorage on your device.' },
+]
 
 const shown = computed(() => display.value)
 const angleLabel = computed(() => (deg.value ? 'DEG' : 'RAD'))
@@ -73,6 +94,7 @@ function press(action, event) {
 }
 
 function onKeydown(event) {
+  if (info.value) return
   if (event.metaKey || event.ctrlKey || event.altKey) return
 
   const key = event.key
@@ -432,9 +454,12 @@ async function copyResult() {
   }
 }
 
-function goTo(target) {
-  page.value = target
-  window.scrollTo(0, 0)
+function openInfo(kind) {
+  info.value = kind
+}
+
+function closeInfo() {
+  info.value = null
 }
 
 const memKeys = [
@@ -528,14 +553,11 @@ const mainKeys = [
               />
             </svg>
           </button>
-          <h1 v-if="page === 'calc'">Free Scientific Calculator</h1>
-          <h1 v-else-if="page === 'docs'">How to Use</h1>
-          <h1 v-else-if="page === 'terms'">Terms of Service</h1>
-          <h1 v-else-if="page === 'privacy'">Privacy Policy</h1>
+          <h1>Scientific Calculator</h1>
           <HubLinks />
         </header>
 
-        <nav v-if="page === 'calc' && useTabs" class="tabs" aria-label="Views">
+        <nav v-if="useTabs" class="tabs" aria-label="Views">
           <button
             type="button"
             class="tab"
@@ -555,7 +577,7 @@ const mainKeys = [
           </button>
         </nav>
 
-        <div v-if="page === 'calc'" class="workspace" :class="useTabs ? `tab-${tab}` : 'tab-split'">
+        <div class="workspace" :class="useTabs ? `tab-${tab}` : 'tab-split'">
           <section
             v-if="!useTabs || tab === 'calc'"
             class="calc"
@@ -664,193 +686,17 @@ const mainKeys = [
           </aside>
         </div>
 
-        <section v-if="page === 'docs'" class="content-page" aria-label="Documentation">
-          <button type="button" class="back-link" @click="goTo('calc')">← Back to Calculator</button>
-
-          <article class="doc-section">
-            <h2>Basic Operations</h2>
-            <p>Enter numbers using the keypad or your keyboard. Use the operators to perform calculations:</p>
-            <ul>
-              <li><strong>+</strong> Addition</li>
-              <li><strong>−</strong> Subtraction</li>
-              <li><strong>×</strong> Multiplication</li>
-              <li><strong>÷</strong> Division</li>
-              <li><strong>xʸ</strong> Power (exponent)</li>
-            </ul>
-          </article>
-
-          <article class="doc-section">
-            <h2>Scientific Functions</h2>
-            <ul>
-              <li><strong>sin, cos, tan</strong> — Trigonometric functions</li>
-              <li><strong>asin, acos, atan</strong> — Inverse trigonometric functions</li>
-              <li><strong>ln</strong> — Natural logarithm</li>
-              <li><strong>log</strong> — Logarithm base 10</li>
-              <li><strong>√</strong> — Square root</li>
-              <li><strong>%</strong> — Percentage (divides by 100)</li>
-            </ul>
-          </article>
-
-          <article class="doc-section">
-            <h2>Angle Mode</h2>
-            <p>Toggle between <strong>DEG</strong> (degrees) and <strong>RAD</strong> (radians) for trigonometric calculations. The current mode is shown on the top-left button.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Memory Functions</h2>
-            <ul>
-              <li><strong>MC</strong> — Clear memory</li>
-              <li><strong>MR</strong> — Recall memory value</li>
-              <li><strong>M+</strong> — Add display value to memory</li>
-              <li><strong>M−</strong> — Subtract display value from memory</li>
-            </ul>
-            <p>An "M" indicator appears on the display when memory contains a value.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Parentheses</h2>
-            <p>Use <strong>(</strong> and <strong>)</strong> to group expressions. The calculator automatically multiplies when you place parentheses next to numbers.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Constants</h2>
-            <ul>
-              <li><strong>π</strong> — Pi (3.14159...)</li>
-              <li><strong>e</strong> — Euler's number (2.71828...)</li>
-            </ul>
-          </article>
-
-          <article class="doc-section">
-            <h2>History</h2>
-            <p>Your calculations are saved in the History panel. Click any result to load it back into the calculator. History persists between sessions in your browser.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Keyboard Shortcuts</h2>
-            <ul>
-              <li><strong>0-9</strong> — Enter digits</li>
-              <li><strong>+ - * /</strong> — Operators</li>
-              <li><strong>Enter</strong> or <strong>=</strong> — Calculate</li>
-              <li><strong>Backspace</strong> — Delete last digit</li>
-              <li><strong>Escape</strong> — Clear all</li>
-              <li><strong>Delete</strong> — Clear entry</li>
-            </ul>
-          </article>
-
-          <article class="doc-section">
-            <h2>Copy Result</h2>
-            <p>Click the display screen to copy the current result to your clipboard.</p>
-          </article>
-        </section>
-
-        <section v-if="page === 'terms'" class="content-page" aria-label="Terms of Service">
-          <button type="button" class="back-link" @click="goTo('calc')">← Back to Calculator</button>
-
-          <article class="doc-section">
-            <h2>1. Acceptance of Terms</h2>
-            <p>By accessing and using this calculator ("Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>2. Description of Service</h2>
-            <p>This is a free scientific calculator provided for educational and general calculation purposes. The Service is provided "as is" without warranties of any kind.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>3. No Account Required</h2>
-            <p>This Service does not require you to create an account. All calculations are performed locally in your browser.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>4. Accuracy</h2>
-            <p>While we strive for accuracy, this calculator is intended for general use only. Do not rely on it for critical calculations requiring guaranteed precision. Always verify important results.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>5. Limitation of Liability</h2>
-            <p>We are not liable for any damages arising from the use or inability to use this Service, including but not limited to errors in calculations or loss of data.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>6. Advertising</h2>
-            <p>This Service displays advertisements provided by Google Ads and third-party sellers. These advertisements help support the free availability of this Service.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>7. Changes to Terms</h2>
-            <p>We may update these Terms of Service at any time. Continued use of the Service after changes constitutes acceptance of the new terms.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>8. Contact</h2>
-            <p>For questions about these terms, visit <a href="https://tools.sessea.com" target="_blank" rel="noopener">tools.sessea.com</a>.</p>
-          </article>
-        </section>
-
-        <section v-if="page === 'privacy'" class="content-page" aria-label="Privacy Policy">
-          <button type="button" class="back-link" @click="goTo('calc')">← Back to Calculator</button>
-
-          <article class="doc-section">
-            <h2>Our Commitment to Privacy</h2>
-            <p>We respect your privacy. This calculator is designed to work entirely in your browser without collecting personal data.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Data We Collect</h2>
-            <p><strong>We do not collect any personal data from users.</strong></p>
-            <p>Your calculations, history, and preferences are stored locally in your browser using localStorage. This data never leaves your device and is not transmitted to our servers.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Local Storage</h2>
-            <p>The calculator uses browser localStorage to save:</p>
-            <ul>
-              <li>Calculation history</li>
-              <li>Memory value</li>
-              <li>Theme preference (dark/light)</li>
-              <li>Angle mode (degrees/radians)</li>
-            </ul>
-            <p>This data remains on your device and can be cleared through your browser settings.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Third-Party Advertising</h2>
-            <p>This Service displays advertisements from <strong>Google Ads</strong> and <strong>third-party advertising partners</strong>.</p>
-            <p>These advertising services may collect and use data to show you personalized ads. This data collection is governed by their respective privacy policies:</p>
-            <ul>
-              <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></li>
-              <li><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">How Google Uses Advertising Data</a></li>
-            </ul>
-            <p>You can opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a> or using the <a href="https://optout.networkadvertising.org/" target="_blank" rel="noopener">NAI Opt-Out Tool</a>.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Cookies</h2>
-            <p>We do not use cookies for tracking or analytics. However, our advertising partners may use cookies to serve relevant ads. You can manage cookie preferences in your browser settings.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Children's Privacy</h2>
-            <p>This Service is not directed at children under 13. We do not knowingly collect any information from children.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Changes to This Policy</h2>
-            <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page.</p>
-          </article>
-
-          <article class="doc-section">
-            <h2>Contact</h2>
-            <p>For privacy-related questions, visit <a href="https://tools.sessea.com" target="_blank" rel="noopener">tools.sessea.com</a>.</p>
-          </article>
-        </section>
+        <SeoBlurb
+          title="Free scientific calculator online"
+          :points="seoPoints"
+          :faq="seoFaq"
+        />
 
         <footer class="footer">
           <nav class="footer-links">
-            <button v-if="page !== 'calc'" type="button" @click="goTo('calc')">Calculator</button>
-            <button v-if="page !== 'docs'" type="button" @click="goTo('docs')">How to Use</button>
-            <button v-if="page !== 'terms'" type="button" @click="goTo('terms')">Terms</button>
-            <button v-if="page !== 'privacy'" type="button" @click="goTo('privacy')">Privacy</button>
+            <button type="button" @click="openInfo('docs')">How to Use</button>
+            <button type="button" @click="openInfo('terms')">Terms</button>
+            <button type="button" @click="openInfo('privacy')">Privacy</button>
           </nav>
           <p class="copyright">© {{ new Date().getFullYear() }} sessea</p>
         </footer>
@@ -864,5 +710,13 @@ const mainKeys = [
     <aside class="ad ad-rail ad-right" aria-label="Advertisement">
       <div class="ad-slot ad-slot-rail">Ad</div>
     </aside>
+
+    <InfoModal
+      :open="Boolean(info)"
+      :title="info ? infoTitles[info] : ''"
+      @close="closeInfo"
+    >
+      <InfoContent v-if="info" :kind="info" />
+    </InfoModal>
   </div>
 </template>
