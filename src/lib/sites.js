@@ -1,5 +1,5 @@
 /** Landing hub. */
-export const HUB_URL = 'https://tools.sessea.com'
+export const HUB_URL = 'https://sessea.com'
 
 /** This app’s public origin (canonical / OG / sitemap). */
 export const SITE_URL = 'https://calc.sessea.com'

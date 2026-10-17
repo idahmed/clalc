@@ -3,7 +3,10 @@ import { computed, onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
   title: { type: String, required: true },
-  points: { type: Array, required: true },
+  lede: { type: String, default: '' },
+  points: { type: Array, default: () => [] },
+  steps: { type: Array, default: () => [] },
+  note: { type: String, default: '' },
   faq: { type: Array, default: () => [] },
 })
 
@@ -47,9 +50,17 @@ onUnmounted(() => {
 <template>
   <aside class="seo" aria-label="About this tool">
     <h3>{{ title }}</h3>
-    <ul role="list">
+    <p v-if="lede" class="seo-lede">{{ lede }}</p>
+    <ul v-if="points.length" role="list">
       <li v-for="point in points" :key="point">{{ point }}</li>
     </ul>
+    <div v-if="steps.length" class="seo-steps">
+      <h4>How to use</h4>
+      <ol>
+        <li v-for="step in steps" :key="step">{{ step }}</li>
+      </ol>
+    </div>
+    <p v-if="note" class="seo-note">{{ note }}</p>
     <dl v-if="faq.length" class="faq">
       <template v-for="item in faq" :key="item.q">
         <dt>{{ item.q }}</dt>

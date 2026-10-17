@@ -4,6 +4,9 @@ import HubLinks from '@/components/HubLinks.vue'
 import InfoContent from '@/components/InfoContent.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
+import PrivacyView from '@/views/PrivacyView.vue'
+import TermsView from '@/views/TermsView.vue'
+import { HUB_URL } from '@/lib/sites'
 import { evaluate } from '@/lib/evaluate'
 import { loadHistory, saveHistory } from '@/lib/history'
 import {
@@ -28,6 +31,7 @@ const tab = ref('calc')
 const useTabs = ref(window.matchMedia('(max-width: 1200px)').matches)
 const copied = ref(false)
 const info = ref(null)
+const legalPage = ref(null)
 
 const infoTitles = {
   docs: 'How to Use',
@@ -35,16 +39,29 @@ const infoTitles = {
   privacy: 'Privacy Policy',
 }
 
+const seoLede =
+  'A free scientific calculator for trigonometry, logs, roots, and memory — with history that stays in your browser.'
+
 const seoPoints = [
   'Free scientific calculator with sin, cos, tan, log, roots, and memory.',
   'History and preferences stay in your browser — nothing is uploaded.',
   'Works offline as a PWA after you install it.',
 ]
 
+const seoSteps = [
+  'Enter numbers with the keypad or your keyboard.',
+  'Use scientific functions and toggle DEG / RAD for trigonometry.',
+  'Press equals to calculate; click the display to copy a result.',
+]
+
+const seoNote =
+  'For homework or engineering checks, verify critical results independently. Clear site data to remove local history.'
+
 const seoFaq = [
   { q: 'Is this scientific calculator free?', a: 'Yes. Free to use with no account required.' },
   { q: 'Does it work offline?', a: 'Yes. After the first visit or install, it can work offline as a PWA.' },
   { q: 'Are my calculations private?', a: 'Yes. History and memory stay in localStorage on your device.' },
+  { q: 'Where is the full privacy policy?', a: 'On this site at /privacy and on sessea.com/privacy.' },
 ]
 
 const shown = computed(() => display.value)
@@ -73,6 +90,31 @@ let copyTimer
 function syncLayout() {
   useTabs.value = mobileQuery.matches
   if (!mobileQuery.matches) tab.value = 'calc'
+}
+
+
+function syncLegalFromPath() {
+  const path = window.location.pathname.replace(/\/$/, '') || '/'
+  if (path === '/privacy') legalPage.value = 'privacy'
+  else if (path === '/terms') legalPage.value = 'terms'
+  else legalPage.value = null
+}
+
+function openLegal(kind) {
+  const path = kind === 'privacy' ? '/privacy' : '/terms'
+  history.pushState({}, '', path)
+  legalPage.value = kind
+  info.value = null
+  document.title =
+    kind === 'privacy'
+      ? 'Privacy Policy — Scientific calculator | sessea'
+      : 'Terms of Service — Scientific calculator | sessea'
+}
+
+function closeLegal() {
+  history.pushState({}, '', '/')
+  legalPage.value = null
+  document.title = 'Free Scientific Calculator Online | Sin, Cos, Tan, Log | sessea'
 }
 
 function buzz() {
@@ -129,15 +171,18 @@ function onKeydown(event) {
 }
 
 onMounted(() => {
+  syncLegalFromPath()
   mobileQuery = window.matchMedia('(max-width: 1200px)')
   syncLayout()
   mobileQuery.addEventListener('change', syncLayout)
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('popstate', syncLegalFromPath)
 })
 
 onUnmounted(() => {
   mobileQuery?.removeEventListener('change', syncLayout)
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('popstate', syncLegalFromPath)
   clearTimeout(copyTimer)
 })
 
@@ -553,7 +598,7 @@ const mainKeys = [
           <HubLinks />
         </header>
 
-        <nav v-if="useTabs" class="tabs" aria-label="Views">
+        <nav v-if="useTabs && !legalPage" class="tabs" aria-label="Views">
           <button
             type="button"
             class="tab"
@@ -573,7 +618,11 @@ const mainKeys = [
           </button>
         </nav>
 
-        <div class="workspace" :class="useTabs ? `tab-${tab}` : 'tab-split'">
+        <div
+          v-if="!legalPage"
+          class="workspace"
+          :class="useTabs ? `tab-${tab}` : 'tab-split'"
+        >
           <section
             v-if="!useTabs || tab === 'calc'"
             class="calc"
@@ -683,16 +732,24 @@ const mainKeys = [
         </div>
 
         <SeoBlurb
+          v-if="!legalPage"
           title="Free scientific calculator online"
+          :lede="seoLede"
           :points="seoPoints"
+          :steps="seoSteps"
+          :note="seoNote"
           :faq="seoFaq"
         />
+        <PrivacyView v-else-if="legalPage === 'privacy'" @home="closeLegal" />
+        <TermsView v-else-if="legalPage === 'terms'" @home="closeLegal" />
 
         <footer class="footer">
           <nav class="footer-links">
-            <button type="button" @click="openInfo('docs')">How to Use</button>
-            <button type="button" @click="openInfo('terms')">Terms</button>
-            <button type="button" @click="openInfo('privacy')">Privacy</button>
+            <button v-if="!legalPage" type="button" @click="openInfo('docs')">How to Use</button>
+            <button type="button" @click="openLegal('privacy')">Privacy</button>
+            <button type="button" @click="openLegal('terms')">Terms</button>
+            <a :href="`${HUB_URL}/about`">About</a>
+            <a :href="`${HUB_URL}/contact`">Contact</a>
           </nav>
           <p class="copyright">© {{ new Date().getFullYear() }} sessea</p>
         </footer>
