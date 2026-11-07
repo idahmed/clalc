@@ -102,7 +102,7 @@ function syncLegalFromPath() {
 
 function openLegal(kind) {
   const path = kind === 'privacy' ? '/privacy' : '/terms'
-  history.pushState({}, '', path)
+  window.history.pushState({}, '', path)
   legalPage.value = kind
   info.value = null
   document.title =
@@ -112,7 +112,7 @@ function openLegal(kind) {
 }
 
 function closeLegal() {
-  history.pushState({}, '', '/')
+  window.history.pushState({}, '', '/')
   legalPage.value = null
   document.title = 'Free Scientific Calculator Online | Sin, Cos, Tan, Log | sessea'
 }
@@ -268,7 +268,22 @@ function toggleSign() {
   syncExpr()
 }
 
+/**
+ * Mid-expression (for example "2 + 30 sin"), a function or constant result becomes
+ * the current operand and the pending expression is kept instead of discarded.
+ */
+function showOperand(text, label) {
+  display.value = text
+  expression.value = `${buffer.value}${label}`
+  pendingOp.value = null
+  fresh.value = true
+}
+
 function setConstant(value, label) {
+  if (buffer.value) {
+    showOperand(format(value), label)
+    return
+  }
   display.value = format(value)
   expression.value = label
   buffer.value = ''
@@ -365,6 +380,10 @@ function applyUnary(fnName) {
   try {
     const result = evaluate(source, mathCtx.value)
     const text = format(result)
+    if (buffer.value && text !== 'Error') {
+      showOperand(text, source)
+      return
+    }
     display.value = text
     expression.value = source
     buffer.value = ''
@@ -384,6 +403,10 @@ function applyUnaryFn(fn, labelFn) {
   const value = Number(display.value)
   const text = format(fn(value))
   const expr = labelFn(format(value))
+  if (buffer.value && text !== 'Error') {
+    showOperand(text, expr)
+    return
+  }
   display.value = text
   expression.value = expr
   buffer.value = ''
@@ -748,6 +771,7 @@ const mainKeys = [
             <button v-if="!legalPage" type="button" @click="openInfo('docs')">How to Use</button>
             <button type="button" @click="openLegal('privacy')">Privacy</button>
             <button type="button" @click="openLegal('terms')">Terms</button>
+            <a :href="`${HUB_URL}/tools/calculator`">Guide</a>
             <a :href="`${HUB_URL}/about`">About</a>
             <a :href="`${HUB_URL}/contact`">Contact</a>
           </nav>
